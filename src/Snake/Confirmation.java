@@ -42,5 +42,4 @@ public class Confirmation {
 
         return answer;
     }
-
 }
