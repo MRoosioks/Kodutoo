@@ -9,39 +9,39 @@ import javafx.geometry.*;
 public class Confirmation {
 
 
-    static boolean vastus;
+    static boolean answer;
 
-    public static boolean display(String pealkiri, String s6num) {
-        Stage aken = new Stage();
-        aken.initModality(Modality.APPLICATION_MODAL);
-        aken.setTitle(pealkiri);
-        aken.setMinWidth(400);
-        aken.setMinHeight(175);
+    public static boolean display(String title, String message) {
+        Stage primaryStage = new Stage();
+        primaryStage.initModality(Modality.APPLICATION_MODAL);
+        primaryStage.setTitle(title);
+        primaryStage.setMinWidth(400);
+        primaryStage.setMinHeight(175);
         Label silt = new Label();
-        silt.setText(s6num);
+        silt.setText(message);
 
-        Button jahNupp = new Button("Jah");
-        Button eiNupp = new Button("Ei");
+        Button yBtn = new Button("Jah");
+        Button nBtn = new Button("Ei");
 
 
-        jahNupp.setOnAction(e -> {
-            vastus = true;
-            aken.close();
+        yBtn.setOnAction(e -> {
+            answer = true;
+            System.exit(0);
         });
-        eiNupp.setOnAction(e -> {
-            vastus = false;
-            aken.close();
+        nBtn.setOnAction(e -> {
+            answer = false;
+            primaryStage.close();
         });
 
-        VBox asetus = new VBox(15);
+        VBox layout = new VBox(15);
 
-        asetus.getChildren().addAll(silt, jahNupp, eiNupp);
-        asetus.setAlignment(Pos.CENTER);
-        Scene stseen = new Scene(asetus);
-        aken.setScene(stseen);
-        aken.showAndWait();
+        layout.getChildren().addAll(silt, yBtn, nBtn);
+        layout.setAlignment(Pos.CENTER);
+        Scene scene = new Scene(layout);
+        primaryStage.setScene(scene);
+        primaryStage.showAndWait();
 
-        return vastus;
+        return answer;
     }
 
 }
