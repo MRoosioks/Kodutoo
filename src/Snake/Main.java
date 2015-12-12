@@ -66,7 +66,6 @@ public class Main extends Application {
             sulgeProgramm();
         });
 
-
         primaryStage.setScene(gameMenu);
         primaryStage.setTitle("Mäng");
         primaryStage.show();

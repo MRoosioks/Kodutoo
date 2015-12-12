@@ -23,7 +23,6 @@ public class Confirmation {
         Button yBtn = new Button("Jah");
         Button nBtn = new Button("Ei");
 
-
         yBtn.setOnAction(e -> {
             answer = true;
             System.exit(0);
