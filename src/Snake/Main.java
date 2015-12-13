@@ -1,5 +1,6 @@
 package Snake;
 
+import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
@@ -21,6 +22,7 @@ import javafx.scene.text.FontPosture;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 /**
  * Created by Madis on 17.11.2015.
@@ -38,6 +40,10 @@ public class Main extends Application {
     public static final int programHeight = 25 * blockSize;
     private static final int circleSize = blockSize / 2;
 
+    private Direction direction = Direction.RIGHT;
+
+    private boolean running = false;
+
     private ObservableList<Node> snake;
 
     private Parent game() {
@@ -52,11 +58,42 @@ public class Main extends Application {
         food.setTranslateX((int) (Math.random() * (programWidth - blockSize)) / blockSize * blockSize);
         food.setTranslateY((int) (Math.random() * (programHeight - blockSize)) / blockSize * blockSize);
 
+        KeyFrame frame = new KeyFrame(Duration.seconds(0.1), event -> {
+
+            if (!running)
+                return;
+
+            boolean toRemove = snake.size() > 1;
+
+            Node tail = toRemove ? snake.remove(snake.size() - 1) : snake.get(0);
+
+            switch (direction) {
+                case UP:
+                    tail.setTranslateX(snake.get(0).getTranslateX());
+                    tail.setTranslateY(snake.get(0).getTranslateY() - blockSize);
+                    break;
+                case DOWN:
+                    tail.setTranslateX(snake.get(0).getTranslateX());
+                    tail.setTranslateY(snake.get(0).getTranslateY() + blockSize);
+                    break;
+                case LEFT:
+                    tail.setTranslateX(snake.get(0).getTranslateX() - blockSize);
+                    tail.setTranslateY(snake.get(0).getTranslateY());
+                    break;
+                case RIGHT:
+                    tail.setTranslateX(snake.get(0).getTranslateX() + blockSize);
+                    tail.setTranslateY(snake.get(0).getTranslateY());
+                    break;
+            }
+
+        });
         root.setStyle("-fx-background-color: #00a3e6;");
 
         root.getChildren().addAll(food);
 
         return root;
+
+
     }
 
     @Override
