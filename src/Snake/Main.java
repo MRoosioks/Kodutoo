@@ -43,6 +43,7 @@ public class Main extends Application {
     private Direction direction = Direction.RIGHT;
 
     private boolean running = false;
+    private boolean gameOver, newGame, paused;
 
     private Timeline timeline = new Timeline();
 
@@ -98,6 +99,7 @@ public class Main extends Application {
             for (Node circle : snake) {
                 if (circle != tail && tail.getTranslateX() == circle.getTranslateX()
                         && tail.getTranslateY() == circle.getTranslateY()) {
+                    stopGame();
                     break;
                 }
             }
@@ -142,14 +144,42 @@ public class Main extends Application {
 
     }
 
+    private void stopGame() {
+        running = false;
+        timeline.stop();
+        newGame = false;
+        gameOver = true;
+        paused = false;
+    }
+
     private void startGame() {
         Circle head = new Circle(circleSize, circleSize, circleSize, Color.RED);
-        snake.add(head);
+        Circle startWithBodyPart1 = new Circle(circleSize, circleSize, circleSize, Color.RED);
+        Circle startWithBodyPart2 = new Circle(circleSize, circleSize, circleSize, Color.RED);
+        snake.addAll(head, startWithBodyPart1, startWithBodyPart2);
         direction = Direction.RIGHT;
         running = true;
         timeline.play();
+        newGame = true;
+        gameOver = false;
+        paused = false;
     }
 
+    private void pauseGame() {
+        running = true;
+        timeline.pause();
+        newGame = false;
+        gameOver = false;
+        paused = true;
+    }
+
+    private void resumeGame() {
+        running = true;
+        timeline.play();
+        newGame = true;
+        gameOver = false;
+        paused = false;
+    }
 
 
     @Override
@@ -159,74 +189,85 @@ public class Main extends Application {
         Scene game = new Scene(game());
         game.setOnKeyPressed(event -> {
 
-                    switch (event.getCode()) {
-                        case W:
-                        case UP:
-
-                            if (direction != Direction.DOWN)
-                                direction = Direction.UP;
-                            break;
-                        case S:
-                        case DOWN:
-
-                            if (direction != Direction.UP)
-                                direction = Direction.DOWN;
-                            break;
-                        case A:
-                        case LEFT:
-
-                            if (direction != Direction.RIGHT)
-                                direction = Direction.LEFT;
-                            break;
-                        case D:
-                        case RIGHT:
-
-                            if (direction != Direction.LEFT)
-                                direction = Direction.RIGHT;
-                            break;
-                        case ENTER:
-                                snake.clear();
-                                startGame();
+            switch (event.getCode()) {
+                case W:
+                case UP:
+                    if (newGame)
+                        if (direction != Direction.DOWN)
+                            direction = Direction.UP;
+                    break;
+                case S:
+                case DOWN:
+                    if (newGame)
+                        if (direction != Direction.UP)
+                            direction = Direction.DOWN;
+                    break;
+                case A:
+                case LEFT:
+                    if (newGame)
+                        if (direction != Direction.RIGHT)
+                            direction = Direction.LEFT;
+                    break;
+                case D:
+                case RIGHT:
+                    if (newGame)
+                        if (direction != Direction.LEFT)
+                            direction = Direction.RIGHT;
+                    break;
+                case P:
+                    if ((!gameOver || !paused) && newGame)
+                        pauseGame();
+                    else
+                        resumeGame();
+                    break;
+                case ENTER:
+                    if ((!newGame && !paused) || (gameOver)) {
+                        snake.clear();
+                        startGame();
                     }
-                });
+                    break;
+                case ESCAPE:
+                    System.exit(0);
+            }
+        });
 
-            VBox layout1 = new VBox(20);
-            layout1.setStyle("-fx-background-color: #00a3e6;");
-            layout1.setAlignment(Pos.CENTER);
+        VBox layout1 = new VBox(20);
+        layout1.setStyle("-fx-background-color: #00a3e6;");
+        layout1.setAlignment(Pos.CENTER);
 
-            Text welcomeText = new Text("Teretulemast mängima ussimängu.");
-            welcomeText.setFont(Font.font("arial", FontWeight.BOLD, FontPosture.ITALIC, 30));
-            welcomeText.setFill(Color.AQUAMARINE);
+        Text welcomeText = new Text("Teretulemast mängima ussimängu.");
+        welcomeText.setFont(Font.font("arial", FontWeight.BOLD, FontPosture.ITALIC, 30));
+        welcomeText.setFill(Color.AQUAMARINE);
 
-            Label keys = new Label("Liigu üles: W / Up Arrowkey\n" +
-                    "Liigu alla: S / Down Arrowkey\n" +
-                    "Liigu paremale: D / Right Arrowkey\n" +
-                    "Liigu vasakule: A / Left Arrowkey\n" +
-                    "Mäng pausile / Jätka mängu: P\n" +
-                    "Uus mäng: ENTER\n" +
-                    "Välju mängust: ESC");
+        Label keys = new Label("Liigu üles: W / Up Arrowkey\n" +
+                "Liigu alla: S / Down Arrowkey\n" +
+                "Liigu paremale: D / Right Arrowkey\n" +
+                "Liigu vasakule: A / Left Arrowkey\n" +
+                "Mäng pausile / Jätka mängu: P\n" +
+                "Uus mäng: ENTER\n" +
+                "Välju mängust: ESC");
 
-            Button settingsBtn = new Button("Mängima");
-            settingsBtn.setStyle("-fx-font: 24 arial;");
+        Button settingsBtn = new Button("Mängima");
+        settingsBtn.setStyle("-fx-font: 24 arial;");
 
-            Button exitBtn1 = new Button("Välju");
-            exitBtn1.setStyle("-fx-font: 24 arial;");
-            exitBtn1.setOnAction(e -> System.exit(0));
-            layout1.getChildren().addAll(welcomeText, settingsBtn, exitBtn1, keys);
+        Button exitBtn1 = new Button("Välju");
+        exitBtn1.setStyle("-fx-font: 24 arial;");
+        exitBtn1.setOnAction(e -> System.exit(0));
+        layout1.getChildren().addAll(welcomeText, settingsBtn, exitBtn1, keys);
 
-            primaryStage.setOnCloseRequest(e -> {
-                e.consume();
-                sulgeProgramm();
-            });
+        primaryStage.setOnCloseRequest(e -> {
+            e.consume();
+            sulgeProgramm();
+        });
 
-            primaryStage.setScene(game);
-            primaryStage.setTitle("Mäng");
-            primaryStage.show();
-        }
-
-        private void sulgeProgramm () {
-            Boolean vastus = Confirmation.display("Kas sa oled kindel?", "Kas sa soovid mängimise lõpetada?");
-            if (vastus)
-                primaryStage.close();
-        }
+        primaryStage.setScene(game);
+        primaryStage.setTitle("Mäng");
+        primaryStage.show();
     }
+
+    private void sulgeProgramm() {
+        Boolean vastus = Confirmation.display("Kas sa oled kindel?", "Kas sa soovid mängimise lõpetada?");
+        if (vastus)
+            primaryStage.close();
+    }
+}
