@@ -3,6 +3,7 @@ package Snake;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -11,9 +12,16 @@ import javafx.scene.Scene;
 import javafx.application.Application;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.RadioButton;
+import javafx.scene.control.ToggleGroup;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
@@ -40,29 +48,31 @@ public class Main extends Application {
 
     private Direction direction = Direction.RIGHT;
 
-    private boolean running = false;
-    private boolean gameOver, newGame, paused;
+    private boolean gameOver, newGame, paused, gameMode;
+    public double difficulty;
+
 
     private Timeline timeline = new Timeline();
+
+    Media media = new Media("file:///C:/Users/Madis/workspace/Kodutoo/src/GAME_OVER.mp3/");
+    MediaPlayer player = new MediaPlayer(media);
 
     private ObservableList<Node> snake;
 
     private Parent firstScene() {
 
         VBox firstSceneLayout = new VBox(20);
-        firstSceneLayout.setStyle("-fx-background-color: #00a3e6;");
         firstSceneLayout.setAlignment(Pos.CENTER);
         firstSceneLayout.setPrefSize(programWidth, programHeight);
 
         Text welcomeText = new Text("Teretulemast mängima ussimängu.");
-        welcomeText.setFont(Font.font("arial", FontWeight.BOLD, FontPosture.ITALIC, 30));
-        welcomeText.setFill(Color.AQUAMARINE);
+        welcomeText.getStyleClass().add("title");
 
         Label settings = new Label("Mängimiseks vajuta ENTER");
-        settings.setStyle("-fx-font: 18 arial;");
+        settings.getStyleClass().add("enterGame");
 
         Button exitBtn1 = new Button("Välju");
-        exitBtn1.setStyle("-fx-font: 20 arial;");
+        exitBtn1.getStyleClass().addAll("exitButton", "exitButton:hover");
         exitBtn1.setOnAction(e -> System.exit(0));
 
         firstSceneLayout.getChildren().addAll(welcomeText, settings, exitBtn1);
@@ -70,7 +80,80 @@ public class Main extends Application {
         return firstSceneLayout;
     }
 
+    private  Parent secondScene(){
+
+        // loon kõik layoutid
+        VBox settingsDifficulty = new VBox(10);
+        VBox settingsGameMode = new VBox(10);
+        StackPane playGame = new StackPane();
+        StackPane settingsTitle = new StackPane();
+        BorderPane secondSceneLayout = new BorderPane();
+
+        // teen pealkirja ning sean stiili
+        Text title = new Text("Mänguseaded");
+        title.getStyleClass().add("title");
+
+        // teen teksi, et mängimiseks vajuta enter ning sean ka aukoha ning stiili
+        Label play = new Label("Mängimiseks vajuta ENTER");
+        play.getStyleClass().add("enterGame");
+
+        // loon labelid  ja radiobuttonid ning annan neile nimed
+        Label chooseDifficulty = new Label("Vali mängu raskusaste");
+        RadioButton easy = new RadioButton("Kerge");
+        RadioButton medium = new RadioButton("Keskmine");
+        RadioButton hard = new RadioButton("Raske");
+        Label chooseGamemode = new Label("Vali mängustiil.");
+        RadioButton withWalls = new RadioButton("Seintega mäng");
+        RadioButton withoutWalls = new RadioButton("Seinteta mäng ");
+
+        // annan muutujale difficulty väärtuse olenevalt sellele, mis nuppu vajutatakse
+        easy.setOnAction(e -> difficulty = 0.2);
+        medium.setOnAction(e -> difficulty = 0.4);
+        hard.setOnAction(e -> difficulty = 0.05);
+        withWalls.setOnAction(e -> gameMode = true);
+        withoutWalls.setOnAction(e -> gameMode = false);
+
+        // jaotan radiobuttonid gruppidesse
+        ToggleGroup difficulty = new ToggleGroup();
+        easy.setToggleGroup(difficulty);
+        medium.setToggleGroup(difficulty);
+        hard.setToggleGroup(difficulty);
+        ToggleGroup gameMode = new ToggleGroup();
+        withWalls.setToggleGroup(gameMode);
+        withoutWalls.setToggleGroup(gameMode);
+
+        //sean 2 radiobuttonit kohe valituks
+        easy.setSelected(true);
+        withoutWalls.setSelected(true);
+
+        // sean asukohad
+        secondSceneLayout.setPrefSize(programWidth, programHeight);
+
+        secondSceneLayout.setLeft(settingsDifficulty);
+        secondSceneLayout.setRight(settingsGameMode);
+        secondSceneLayout.setBottom(playGame);
+        secondSceneLayout.setTop(settingsTitle);
+
+        // sean kauguse seinast
+        BorderPane.setMargin(settingsDifficulty, new Insets(50, 50, 50, 50));
+        BorderPane.setMargin(settingsGameMode, new Insets(50, 50, 50, 50));
+        BorderPane.setMargin(playGame, new Insets(50, 50, 50, 50));
+        BorderPane.setMargin(settingsTitle, new Insets(50, 50, 50, 50));
+
+        // lisan kõik kokku
+        playGame.getChildren().add(play);
+        settingsTitle.getChildren().add(title);
+        settingsDifficulty.getChildren().addAll(chooseDifficulty, easy, medium, hard);
+        settingsGameMode.getChildren().addAll(chooseGamemode, withoutWalls, withWalls);
+
+        // tagastan teise scene layouti
+        return secondSceneLayout;
+    }
     private Parent game() {
+
+        // loon media fail ning sean sellele helitugevuse
+
+
 
         Pane root = new Pane();
         root.setPrefSize(programWidth, programHeight);
@@ -79,14 +162,14 @@ public class Main extends Application {
         snake = snakeBody.getChildren();
 
         Label points = new Label("Punktid: " + this.points);
-        points.setTextFill(Color.WHITE);
-        points.setLayoutX(500);
+        points.getStyleClass().add("gameText");
+        points.setLayoutX(programWidth - 100);
         points.setLayoutY(0);
 
         Label controls = new Label("Liigu üles: W / Üles nool\n" + "Liigu alla: S / Alla nool\n" + "Liigu paremale: D / Paremale nool\n" +
                 "Liigu vasakule: A / Vasakule nool\n" + "Mäng pausile / Jätka mängu: P\n" + "Uus mäng: ENTER\n" +
                 "Mängu seaded: Backspace\n" + "Välju mängust: ESC");
-        controls.setTextFill(Color.WHITE);
+        controls.getStyleClass().add("gameText");
         controls.setLayoutX(programWidth / 3);
         controls.setLayoutY(programHeight / 3);
 
@@ -97,9 +180,6 @@ public class Main extends Application {
         KeyFrame frame = new KeyFrame(Duration.seconds(0.1), event -> {
 
             controls.setVisible(false);
-
-            if (!running)
-                return;
 
             boolean toRemove = snake.size() > 1;
 
@@ -139,19 +219,28 @@ public class Main extends Application {
                     break;
                 }
             }
+            if(!gameMode) {
+                if (tail.getTranslateX() <= -blockSize) {
+                    tail.setTranslateX(programWidth - blockSize);
+                    tail.getTranslateY();
+                } else if (tail.getTranslateX() >= programWidth) {
+                    tail.setTranslateX(0);
+                    tail.getTranslateY();
+                } else if (tail.getTranslateY() <= -blockSize) {
+                    tail.getTranslateX();
+                    tail.setTranslateY(programHeight - blockSize);
+                } else if (tail.getTranslateY() >= programHeight) {
+                    tail.getTranslateX();
+                    tail.setTranslateY(0);
+                }
+            }
 
-            if (tail.getTranslateX() <= -blockSize) {
-                tail.setTranslateX(programWidth - blockSize);
-                tail.getTranslateY();
-            } else if (tail.getTranslateX() >= programWidth) {
-                tail.setTranslateX(0);
-                tail.getTranslateY();
-            } else if (tail.getTranslateY() <= -blockSize) {
-                tail.getTranslateX();
-                tail.setTranslateY(programHeight - blockSize);
-            } else if (tail.getTranslateY() >= programHeight) {
-                tail.getTranslateX();
-                tail.setTranslateY(0);
+            if (gameMode) {
+                if (tail.getTranslateX() < 0 || tail.getTranslateX() >= programWidth
+                        || tail.getTranslateY() < 0 || tail.getTranslateY() >= programHeight) {
+                    controls.setVisible(true);
+                    stopGame();
+                }
             }
 
             if (tail.getTranslateX() == food.getTranslateX()
@@ -174,21 +263,16 @@ public class Main extends Application {
             }
 
         });
-        root.setStyle("-fx-background-color: #00a3e6;");
 
         timeline.getKeyFrames().add(frame);
-        if (running = true)
-            timeline.setCycleCount(Timeline.INDEFINITE);
-
+        timeline.setCycleCount(Timeline.INDEFINITE);
         root.getChildren().addAll(food, snakeBody, controls, points);
 
         return root;
-
-
     }
 
     private void stopGame() {
-        running = false;
+        player.setAutoPlay(true);
         timeline.stop();
         newGame = false;
         gameOver = true;
@@ -200,9 +284,8 @@ public class Main extends Application {
         Circle startWithBodyPart1 = new Circle(circleSize, circleSize, circleSize * 1.2, Color.RED);
         Circle startWithBodyPart2 = new Circle(circleSize, circleSize, circleSize * 1.2, Color.RED);
         snake.addAll(head, startWithBodyPart1, startWithBodyPart2);
-        this.points = 0;
+        points = 0;
         direction = Direction.RIGHT;
-        running = true;
         timeline.play();
         newGame = true;
         gameOver = false;
@@ -210,7 +293,6 @@ public class Main extends Application {
     }
 
     private void pauseGame() {
-        running = true;
         timeline.pause();
         newGame = false;
         gameOver = false;
@@ -218,7 +300,6 @@ public class Main extends Application {
     }
 
     private void resumeGame() {
-        running = true;
         timeline.play();
         newGame = true;
         gameOver = false;
@@ -231,8 +312,12 @@ public class Main extends Application {
         primaryStage.setResizable(false);
 
         Scene gameMenu = new Scene(firstScene());
-
+        Scene settings = new Scene(secondScene());
         Scene game = new Scene(game());
+
+        gameMenu.getStylesheets().add("Design.css");
+        settings.getStylesheets().add("Design.css");
+        game.getStylesheets().add("Design.css");
         game.setOnKeyPressed(event -> {
 
             switch (event.getCode()) {
@@ -263,7 +348,7 @@ public class Main extends Application {
                 case P:
                     if ((!gameOver || !paused) && newGame)
                         pauseGame();
-                    else
+                    else if (paused && !newGame)
                         resumeGame();
                     break;
                 case BACK_SPACE:
@@ -282,6 +367,11 @@ public class Main extends Application {
 
         gameMenu.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.ENTER)
+                primaryStage.setScene(settings);
+        });
+
+        settings.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.ENTER)
                 primaryStage.setScene(game);
         });
 
@@ -293,6 +383,8 @@ public class Main extends Application {
         primaryStage.setScene(gameMenu);
         primaryStage.setTitle("Mäng");
         primaryStage.show();
+
+primaryStage.getIcons().add(new Image("file:///C:/Users/Madis/workspace/Kodutoo/src/images.jpg/"));
     }
 
     private void sulgeProgramm() {

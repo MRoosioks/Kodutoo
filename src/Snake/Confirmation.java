@@ -17,8 +17,8 @@ public class Confirmation {
         primaryStage.setTitle(title);
         primaryStage.setMinWidth(400);
         primaryStage.setMinHeight(175);
-        Label silt = new Label();
-        silt.setText(message);
+        Label label = new Label();
+        label.setText(message);
 
         Button yBtn = new Button("Jah");
         Button nBtn = new Button("Ei");
@@ -34,7 +34,7 @@ public class Confirmation {
 
         VBox layout = new VBox(15);
 
-        layout.getChildren().addAll(silt, yBtn, nBtn);
+        layout.getChildren().addAll(label, yBtn, nBtn);
         layout.setAlignment(Pos.CENTER);
         Scene scene = new Scene(layout);
         primaryStage.setScene(scene);
