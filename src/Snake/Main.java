@@ -2,7 +2,6 @@ package Snake;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
@@ -12,8 +11,8 @@ import javafx.scene.Scene;
 import javafx.application.Application;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -24,9 +23,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-/**
- * Created by Madis on 17.11.2015.
- */
+
 public class Main extends Application {
 
     Stage primaryStage;
@@ -38,7 +35,8 @@ public class Main extends Application {
     public static final int blockSize = 20;
     public static final int programWidth = 30 * blockSize;
     public static final int programHeight = 25 * blockSize;
-    private static final int circleSize = blockSize / 2;
+    public static final int circleSize = blockSize / 2;
+    public int points;
 
     private Direction direction = Direction.RIGHT;
 
@@ -49,6 +47,29 @@ public class Main extends Application {
 
     private ObservableList<Node> snake;
 
+    private Parent firstScene() {
+
+        VBox firstSceneLayout = new VBox(20);
+        firstSceneLayout.setStyle("-fx-background-color: #00a3e6;");
+        firstSceneLayout.setAlignment(Pos.CENTER);
+        firstSceneLayout.setPrefSize(programWidth, programHeight);
+
+        Text welcomeText = new Text("Teretulemast mängima ussimängu.");
+        welcomeText.setFont(Font.font("arial", FontWeight.BOLD, FontPosture.ITALIC, 30));
+        welcomeText.setFill(Color.AQUAMARINE);
+
+        Label settings = new Label("Mängimiseks vajuta ENTER");
+        settings.setStyle("-fx-font: 18 arial;");
+
+        Button exitBtn1 = new Button("Välju");
+        exitBtn1.setStyle("-fx-font: 20 arial;");
+        exitBtn1.setOnAction(e -> System.exit(0));
+
+        firstSceneLayout.getChildren().addAll(welcomeText, settings, exitBtn1);
+
+        return firstSceneLayout;
+    }
+
     private Parent game() {
 
         Pane root = new Pane();
@@ -57,11 +78,25 @@ public class Main extends Application {
         Group snakeBody = new Group();
         snake = snakeBody.getChildren();
 
+        Label points = new Label("Punktid: " + this.points);
+        points.setTextFill(Color.WHITE);
+        points.setLayoutX(500);
+        points.setLayoutY(0);
+
+        Label controls = new Label("Liigu üles: W / Üles nool\n" + "Liigu alla: S / Alla nool\n" + "Liigu paremale: D / Paremale nool\n" +
+                "Liigu vasakule: A / Vasakule nool\n" + "Mäng pausile / Jätka mängu: P\n" + "Uus mäng: ENTER\n" +
+                "Mängu seaded: Backspace\n" + "Välju mängust: ESC");
+        controls.setTextFill(Color.WHITE);
+        controls.setLayoutX(programWidth / 3);
+        controls.setLayoutY(programHeight / 3);
+
         Circle food = new Circle(circleSize, circleSize, circleSize / 1.5, Color.DARKGREEN);
         food.setTranslateX((int) (Math.random() * (programWidth - blockSize)) / blockSize * blockSize);
         food.setTranslateY((int) (Math.random() * (programHeight - blockSize)) / blockSize * blockSize);
 
         KeyFrame frame = new KeyFrame(Duration.seconds(0.1), event -> {
+
+            controls.setVisible(false);
 
             if (!running)
                 return;
@@ -99,6 +134,7 @@ public class Main extends Application {
             for (Node circle : snake) {
                 if (circle != tail && tail.getTranslateX() == circle.getTranslateX()
                         && tail.getTranslateY() == circle.getTranslateY()) {
+                    controls.setVisible(true);
                     stopGame();
                     break;
                 }
@@ -122,12 +158,19 @@ public class Main extends Application {
                     && tail.getTranslateY() == food.getTranslateY()) {
                 food.setTranslateX((int) (Math.random() * (programWidth - blockSize)) / blockSize * blockSize);
                 food.setTranslateY((int) (Math.random() * (programHeight - blockSize)) / blockSize * blockSize);
+                this.points += 15;
+                points.setText("Punktid: " + this.points);
 
-                Circle addBodyPart1 = new Circle(circleSize, circleSize, circleSize, Color.RED);
+                Circle addBodyPart1 = new Circle(circleSize, circleSize, circleSize * 1.2, Color.RED);
+                Circle addBodyPart2 = new Circle(circleSize, circleSize, circleSize * 1.2, Color.RED);
+                Circle addBodyPart3 = new Circle(circleSize, circleSize, circleSize * 1.2, Color.RED);
                 addBodyPart1.setTranslateX(tailX);
                 addBodyPart1.setTranslateY(tailY);
-
-                snake.add(addBodyPart1);
+                addBodyPart2.setTranslateX(tailX);
+                addBodyPart2.setTranslateY(tailY);
+                addBodyPart3.setTranslateX(tailX);
+                addBodyPart3.setTranslateY(tailY);
+                snake.addAll(addBodyPart1, addBodyPart2, addBodyPart3);
             }
 
         });
@@ -137,7 +180,7 @@ public class Main extends Application {
         if (running = true)
             timeline.setCycleCount(Timeline.INDEFINITE);
 
-        root.getChildren().addAll(food, snakeBody);
+        root.getChildren().addAll(food, snakeBody, controls, points);
 
         return root;
 
@@ -153,10 +196,11 @@ public class Main extends Application {
     }
 
     private void startGame() {
-        Circle head = new Circle(circleSize, circleSize, circleSize, Color.RED);
-        Circle startWithBodyPart1 = new Circle(circleSize, circleSize, circleSize, Color.RED);
-        Circle startWithBodyPart2 = new Circle(circleSize, circleSize, circleSize, Color.RED);
+        Circle head = new Circle(circleSize, circleSize, circleSize * 1.2, Color.RED);
+        Circle startWithBodyPart1 = new Circle(circleSize, circleSize, circleSize * 1.2, Color.RED);
+        Circle startWithBodyPart2 = new Circle(circleSize, circleSize, circleSize * 1.2, Color.RED);
         snake.addAll(head, startWithBodyPart1, startWithBodyPart2);
+        this.points = 0;
         direction = Direction.RIGHT;
         running = true;
         timeline.play();
@@ -185,6 +229,8 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         primaryStage.setResizable(false);
+
+        Scene gameMenu = new Scene(firstScene());
 
         Scene game = new Scene(game());
         game.setOnKeyPressed(event -> {
@@ -220,6 +266,9 @@ public class Main extends Application {
                     else
                         resumeGame();
                     break;
+                case BACK_SPACE:
+                    if ((!newGame && !paused) || (gameOver))
+                        primaryStage.setScene(gameMenu);
                 case ENTER:
                     if ((!newGame && !paused) || (gameOver)) {
                         snake.clear();
@@ -231,36 +280,17 @@ public class Main extends Application {
             }
         });
 
-        VBox layout1 = new VBox(20);
-        layout1.setStyle("-fx-background-color: #00a3e6;");
-        layout1.setAlignment(Pos.CENTER);
-
-        Text welcomeText = new Text("Teretulemast mängima ussimängu.");
-        welcomeText.setFont(Font.font("arial", FontWeight.BOLD, FontPosture.ITALIC, 30));
-        welcomeText.setFill(Color.AQUAMARINE);
-
-        Label keys = new Label("Liigu üles: W / Up Arrowkey\n" +
-                "Liigu alla: S / Down Arrowkey\n" +
-                "Liigu paremale: D / Right Arrowkey\n" +
-                "Liigu vasakule: A / Left Arrowkey\n" +
-                "Mäng pausile / Jätka mängu: P\n" +
-                "Uus mäng: ENTER\n" +
-                "Välju mängust: ESC");
-
-        Button settingsBtn = new Button("Mängima");
-        settingsBtn.setStyle("-fx-font: 24 arial;");
-
-        Button exitBtn1 = new Button("Välju");
-        exitBtn1.setStyle("-fx-font: 24 arial;");
-        exitBtn1.setOnAction(e -> System.exit(0));
-        layout1.getChildren().addAll(welcomeText, settingsBtn, exitBtn1, keys);
+        gameMenu.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.ENTER)
+                primaryStage.setScene(game);
+        });
 
         primaryStage.setOnCloseRequest(e -> {
             e.consume();
             sulgeProgramm();
         });
 
-        primaryStage.setScene(game);
+        primaryStage.setScene(gameMenu);
         primaryStage.setTitle("Mäng");
         primaryStage.show();
     }
