@@ -46,15 +46,15 @@ public class Main extends Application {
     private Direction direction = Direction.RIGHT;
 
     private boolean gameOver, newGame, paused, gameMode;
-    public double difficulty;
 
+    public double difficulty;
 
     private Timeline timeline = new Timeline();
 
+    private ObservableList<Node> snake;
+
     Media media = new Media("file:///C:/Users/Madis/workspace/Kodutoo/src/GAME_OVER.mp3/");
     MediaPlayer player = new MediaPlayer(media);
-
-    private ObservableList<Node> snake;
 
     private Parent firstScene() {
 
@@ -63,7 +63,7 @@ public class Main extends Application {
         firstSceneLayout.setPrefSize(programWidth, programHeight);
 
         Text welcomeText = new Text("Teretulemast mängima ussimängu.");
-        welcomeText.getStyleClass().add("title");
+        welcomeText.getStyleClass().addAll("title");
 
         Label settings = new Label("Mängimiseks vajuta ENTER");
         settings.getStyleClass().add("enterGame");
@@ -148,9 +148,9 @@ public class Main extends Application {
     }
     private Parent game() {
 
+        player.setVolume(0.3);
+
         // loon media fail ning sean sellele helitugevuse
-
-
 
         Pane root = new Pane();
         root.setPrefSize(programWidth, programHeight);
@@ -212,6 +212,7 @@ public class Main extends Application {
                 if (circle != tail && tail.getTranslateX() == circle.getTranslateX()
                         && tail.getTranslateY() == circle.getTranslateY()) {
                     controls.setVisible(true);
+                    player.play();
                     stopGame();
                     break;
                 }
@@ -236,6 +237,7 @@ public class Main extends Application {
                 if (tail.getTranslateX() < 0 || tail.getTranslateX() >= programWidth
                         || tail.getTranslateY() < 0 || tail.getTranslateY() >= programHeight) {
                     controls.setVisible(true);
+                    player.play();
                     stopGame();
                 }
             }
@@ -247,9 +249,9 @@ public class Main extends Application {
                 this.points += 15;
                 points.setText("Punktid: " + this.points);
 
-                Circle addBodyPart1 = new Circle(circleSize, circleSize, circleSize * 1.2, Color.RED);
-                Circle addBodyPart2 = new Circle(circleSize, circleSize, circleSize * 1.2, Color.RED);
-                Circle addBodyPart3 = new Circle(circleSize, circleSize, circleSize * 1.2, Color.RED);
+                Circle addBodyPart1 = new Circle(circleSize, circleSize, circleSize * 1.1, Color.RED);
+                Circle addBodyPart2 = new Circle(circleSize, circleSize, circleSize * 1.1, Color.RED);
+                Circle addBodyPart3 = new Circle(circleSize, circleSize, circleSize * 1.1, Color.RED);
                 addBodyPart1.setTranslateX(tailX);
                 addBodyPart1.setTranslateY(tailY);
                 addBodyPart2.setTranslateX(tailX);
@@ -258,7 +260,6 @@ public class Main extends Application {
                 addBodyPart3.setTranslateY(tailY);
                 snake.addAll(addBodyPart1, addBodyPart2, addBodyPart3);
             }
-
         });
 
         timeline.getKeyFrames().add(frame);
@@ -269,7 +270,6 @@ public class Main extends Application {
     }
 
     private void stopGame() {
-        player.setAutoPlay(true);
         timeline.stop();
         newGame = false;
         gameOver = true;
@@ -277,11 +277,12 @@ public class Main extends Application {
     }
 
     private void startGame() {
-        Circle head = new Circle(circleSize, circleSize, circleSize * 1.2, Color.RED);
-        Circle startWithBodyPart1 = new Circle(circleSize, circleSize, circleSize * 1.2, Color.RED);
-        Circle startWithBodyPart2 = new Circle(circleSize, circleSize, circleSize * 1.2, Color.RED);
+        Circle head = new Circle(circleSize, circleSize, circleSize * 1.1, Color.RED);
+        Circle startWithBodyPart1 = new Circle(circleSize, circleSize, circleSize * 1.1, Color.RED);
+        Circle startWithBodyPart2 = new Circle(circleSize, circleSize, circleSize * 1.1, Color.RED);
         snake.addAll(head, startWithBodyPart1, startWithBodyPart2);
         points = 0;
+        player.stop();
         direction = Direction.RIGHT;
         timeline.play();
         newGame = true;
@@ -303,11 +304,9 @@ public class Main extends Application {
         paused = false;
     }
 
-
     @Override
     public void start(Stage primaryStage) throws Exception {
         primaryStage.setResizable(false);
-
         Scene gameMenu = new Scene(firstScene());
         Scene settings = new Scene(secondScene());
         Scene game = new Scene(game());
@@ -315,31 +314,28 @@ public class Main extends Application {
         gameMenu.getStylesheets().add("Design.css");
         settings.getStylesheets().add("Design.css");
         game.getStylesheets().add("Design.css");
+
         game.setOnKeyPressed(event -> {
 
             switch (event.getCode()) {
                 case W:
                 case UP:
-                    if (newGame)
-                        if (direction != Direction.DOWN)
+                    if (direction != Direction.DOWN && newGame)
                             direction = Direction.UP;
                     break;
                 case S:
                 case DOWN:
-                    if (newGame)
-                        if (direction != Direction.UP)
+                    if (direction != Direction.UP && newGame)
                             direction = Direction.DOWN;
                     break;
                 case A:
                 case LEFT:
-                    if (newGame)
-                        if (direction != Direction.RIGHT)
+                    if (direction != Direction.RIGHT && newGame)
                             direction = Direction.LEFT;
                     break;
                 case D:
                 case RIGHT:
-                    if (newGame)
-                        if (direction != Direction.LEFT)
+                    if (direction != Direction.LEFT && newGame)
                             direction = Direction.RIGHT;
                     break;
                 case P:
@@ -350,7 +346,7 @@ public class Main extends Application {
                     break;
                 case BACK_SPACE:
                     if ((!newGame && !paused) || (gameOver))
-                        primaryStage.setScene(gameMenu);
+                        primaryStage.setScene(settings);
                 case ENTER:
                     if ((!newGame && !paused) || (gameOver)) {
                         snake.clear();
@@ -384,8 +380,9 @@ public class Main extends Application {
     }
 
     private void sulgeProgramm() {
-        Boolean vastus = Confirmation.display("Kas sa oled kindel?", "Kas sa soovid mängimise lõpetada?");
-        if (vastus)
+        pauseGame();
+        Boolean answer = Confirmation.display("Kas sa oled kindel?", "Kas sa soovid mängimise lõpetada?");
+        if (answer)
             primaryStage.close();
     }
 }

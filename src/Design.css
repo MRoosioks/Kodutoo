@@ -3,32 +3,34 @@
     -fx-spacing: 50;
 }
 .exitButton{
-    -fx-font-size: 24px;
+    -fx-font-size: 24;
     -fx-font-family: "Arial";
     -fx-background-color: linear-gradient(#9EA7E5, #61a2b1);
+    -fx-background-radius: 30;
 }
 .exitButton:hover{
-    -fx-background-color: linear-gradient(#1799e6, #61a2b1);
+    -fx-background-color: linear-gradient(#00a3e6, #66b0b1);
     -fx-text-fill: white;
 }
 .title{
     -fx-font-weight: bold, italic;
-    -fx-font-size: 30px;
+    -fx-font-size: 30;
     -fx-font-family: "Arial";
     -fx-fill: #71d3e6;
-    -fx-text-alignment: CENTER;
 }
 .enterGame{
-    -fx-font-size: 18px;
+    -fx-font-size: 18;
     -fx-font-family: "Arial";
     -fx-text-alignment: CENTER;
 }
 .gameText{
     -fx-text-fill: white;
+    -fx-font-family: "Arial";
 }
-.points{
-    -fx-text-alignment: CENTER;
+.radio-button .radio{
+    -fx-background-color : #71d3e6;
 }
-.paddings{
-    -fx-padding: 20;
+.radio-button .dot{
+    -fx-mark-color: green ;
 }
+
