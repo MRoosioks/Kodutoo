@@ -6,7 +6,7 @@
     -fx-font-size: 24;
     -fx-font-family: "Arial";
     -fx-background-color: linear-gradient(#9EA7E5, #61a2b1);
-    -fx-background-radius: 30;
+    -fx-background-radius: 20;
 }
 .exitButton:hover{
     -fx-background-color: linear-gradient(#00a3e6, #66b0b1);
@@ -21,7 +21,6 @@
 .enterGame{
     -fx-font-size: 18;
     -fx-font-family: "Arial";
-    -fx-text-alignment: CENTER;
 }
 .gameText{
     -fx-text-fill: white;
@@ -32,5 +31,12 @@
 }
 .radio-button .dot{
     -fx-mark-color: green ;
+}
+.border-style{
+    -fx-border-width: medium;
+    -fx-border-color: red;
+}
+.padding{
+    -fx-padding: 50 50 50 50;
 }
 

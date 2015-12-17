@@ -16,10 +16,7 @@ import javafx.scene.control.RadioButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
@@ -45,7 +42,7 @@ public class Main extends Application {
 
     private Direction direction = Direction.RIGHT;
 
-    private boolean gameOver, newGame, paused, gameMode;
+    private boolean gameOver, newGame, paused, gameMode, music;
 
     public double difficulty;
 
@@ -53,8 +50,9 @@ public class Main extends Application {
 
     private ObservableList<Node> snake;
 
-    Media media = new Media("file:///C:/Users/Madis/workspace/Kodutoo/src/GAME_OVER.mp3/");
-    MediaPlayer player = new MediaPlayer(media);
+    Media gameEnd = new Media("file:///C:/Users/Madis/workspace/Kodutoo/src/GAME_OVER.mp3/");
+    MediaPlayer player = new MediaPlayer(gameEnd);
+//    https://www.youtube.com/watch?v=pQH9qaayEOs&index=12&list=PLE70F1F368DB2A6F2
 
     private Parent firstScene() {
 
@@ -77,11 +75,12 @@ public class Main extends Application {
         return firstSceneLayout;
     }
 
-    private  Parent secondScene(){
+    private Parent secondScene() {
 
         // loon kõik layoutid
         VBox settingsDifficulty = new VBox(10);
         VBox settingsGameMode = new VBox(10);
+        VBox settingsSound = new VBox(10);
         StackPane playGame = new StackPane();
         StackPane settingsTitle = new StackPane();
         BorderPane secondSceneLayout = new BorderPane();
@@ -95,20 +94,25 @@ public class Main extends Application {
         play.getStyleClass().add("enterGame");
 
         // loon labelid  ja radiobuttonid ning annan neile nimed
-        Label chooseDifficulty = new Label("Vali mängu raskusaste");
+        Label chooseDifficulty = new Label("Mängu raskusaste");
         RadioButton easy = new RadioButton("Kerge");
         RadioButton medium = new RadioButton("Keskmine");
         RadioButton hard = new RadioButton("Raske");
-        Label chooseGamemode = new Label("Vali mängustiil.");
+        Label chooseGamemode = new Label("Mängustiil");
         RadioButton withWalls = new RadioButton("Seintega mäng");
         RadioButton withoutWalls = new RadioButton("Seinteta mäng ");
+        Label sound = new Label("Heli");
+        RadioButton on = new RadioButton("On");
+        RadioButton off = new RadioButton("Off");
 
         // annan muutujale difficulty väärtuse olenevalt sellele, mis nuppu vajutatakse
-        easy.setOnAction(e -> difficulty = 0.2);
-        medium.setOnAction(e -> difficulty = 0.4);
+        easy.setOnAction(e -> difficulty = 0.1);
+        medium.setOnAction(e -> difficulty = 0.3);
         hard.setOnAction(e -> difficulty = 0.05);
         withWalls.setOnAction(e -> gameMode = true);
         withoutWalls.setOnAction(e -> gameMode = false);
+        on.setOnAction(e -> music = true);
+        off.setOnAction(e -> music = false);
 
         // jaotan radiobuttonid gruppidesse
         ToggleGroup difficulty = new ToggleGroup();
@@ -118,10 +122,14 @@ public class Main extends Application {
         ToggleGroup gameMode = new ToggleGroup();
         withWalls.setToggleGroup(gameMode);
         withoutWalls.setToggleGroup(gameMode);
+        ToggleGroup gameSound = new ToggleGroup();
+        on.setToggleGroup(gameSound);
+        off.setToggleGroup(gameSound);
 
         //sean 2 radiobuttonit kohe valituks
         easy.setSelected(true);
         withoutWalls.setSelected(true);
+        off.setSelected(true);
 
         // sean asukohad
         secondSceneLayout.setPrefSize(programWidth, programHeight);
@@ -130,27 +138,29 @@ public class Main extends Application {
         secondSceneLayout.setRight(settingsGameMode);
         secondSceneLayout.setBottom(playGame);
         secondSceneLayout.setTop(settingsTitle);
+        secondSceneLayout.setCenter(settingsSound);
 
         // sean kauguse seinast
-        BorderPane.setMargin(settingsDifficulty, new Insets(50, 50, 50, 50));
-        BorderPane.setMargin(settingsGameMode, new Insets(50, 50, 50, 50));
-        BorderPane.setMargin(playGame, new Insets(50, 50, 50, 50));
-        BorderPane.setMargin(settingsTitle, new Insets(50, 50, 50, 50));
+        BorderPane.setMargin(settingsDifficulty, new Insets(50, 20, 50, 50));
+        BorderPane.setMargin(settingsGameMode, new Insets(50, 50, 50, 20));
+        BorderPane.setMargin(playGame, new Insets(50, 0, 50, 0));
+        BorderPane.setMargin(settingsTitle, new Insets(50, 0, 50, 0));
+        BorderPane.setMargin(settingsSound, new Insets(50, 50, 50, 50));
 
         // lisan kõik kokku
         playGame.getChildren().add(play);
         settingsTitle.getChildren().add(title);
         settingsDifficulty.getChildren().addAll(chooseDifficulty, easy, medium, hard);
         settingsGameMode.getChildren().addAll(chooseGamemode, withoutWalls, withWalls);
+        settingsSound.getChildren().addAll(sound, off, on);
 
         // tagastan teise scene layouti
         return secondSceneLayout;
     }
+
     private Parent game() {
 
         player.setVolume(0.3);
-
-        // loon media fail ning sean sellele helitugevuse
 
         Pane root = new Pane();
         root.setPrefSize(programWidth, programHeight);
@@ -161,7 +171,7 @@ public class Main extends Application {
         Label points = new Label("Punktid: " + this.points);
         points.getStyleClass().add("gameText");
         points.setLayoutX(programWidth - 100);
-        points.setLayoutY(0);
+        points.setLayoutY(programHeight - 490);
 
         Label controls = new Label("Liigu üles: W / Üles nool\n" + "Liigu alla: S / Alla nool\n" + "Liigu paremale: D / Paremale nool\n" +
                 "Liigu vasakule: A / Vasakule nool\n" + "Mäng pausile / Jätka mängu: P\n" + "Uus mäng: ENTER\n" +
@@ -173,6 +183,8 @@ public class Main extends Application {
         Circle food = new Circle(circleSize, circleSize, circleSize / 1.5, Color.DARKGREEN);
         food.setTranslateX((int) (Math.random() * (programWidth - blockSize)) / blockSize * blockSize);
         food.setTranslateY((int) (Math.random() * (programHeight - blockSize)) / blockSize * blockSize);
+
+
 
         KeyFrame frame = new KeyFrame(Duration.seconds(0.1), event -> {
 
@@ -212,12 +224,13 @@ public class Main extends Application {
                 if (circle != tail && tail.getTranslateX() == circle.getTranslateX()
                         && tail.getTranslateY() == circle.getTranslateY()) {
                     controls.setVisible(true);
-                    player.play();
+                    if(music)
+                        player.play();
                     stopGame();
                     break;
                 }
             }
-            if(!gameMode) {
+            if (!gameMode) {
                 if (tail.getTranslateX() <= -blockSize) {
                     tail.setTranslateX(programWidth - blockSize);
                     tail.getTranslateY();
@@ -233,13 +246,12 @@ public class Main extends Application {
                 }
             }
 
-            if (gameMode) {
-                if (tail.getTranslateX() < 0 || tail.getTranslateX() >= programWidth
-                        || tail.getTranslateY() < 0 || tail.getTranslateY() >= programHeight) {
-                    controls.setVisible(true);
+            if (tail.getTranslateX() < 0 || tail.getTranslateX() >= programWidth
+                    || tail.getTranslateY() < 0 || tail.getTranslateY() >= programHeight) {
+                controls.setVisible(true);
+                if(music)
                     player.play();
-                    stopGame();
-                }
+                stopGame();
             }
 
             if (tail.getTranslateX() == food.getTranslateX()
@@ -249,9 +261,9 @@ public class Main extends Application {
                 this.points += 15;
                 points.setText("Punktid: " + this.points);
 
-                Circle addBodyPart1 = new Circle(circleSize, circleSize, circleSize * 1.1, Color.RED);
-                Circle addBodyPart2 = new Circle(circleSize, circleSize, circleSize * 1.1, Color.RED);
-                Circle addBodyPart3 = new Circle(circleSize, circleSize, circleSize * 1.1, Color.RED);
+                Circle addBodyPart1 = new Circle(circleSize, circleSize, circleSize, Color.PURPLE);
+                Circle addBodyPart2 = new Circle(circleSize, circleSize, circleSize, Color.PURPLE);
+                Circle addBodyPart3 = new Circle(circleSize, circleSize, circleSize, Color.PURPLE);
                 addBodyPart1.setTranslateX(tailX);
                 addBodyPart1.setTranslateY(tailY);
                 addBodyPart2.setTranslateX(tailX);
@@ -277,9 +289,9 @@ public class Main extends Application {
     }
 
     private void startGame() {
-        Circle head = new Circle(circleSize, circleSize, circleSize * 1.1, Color.RED);
-        Circle startWithBodyPart1 = new Circle(circleSize, circleSize, circleSize * 1.1, Color.RED);
-        Circle startWithBodyPart2 = new Circle(circleSize, circleSize, circleSize * 1.1, Color.RED);
+        Circle head = new Circle(circleSize, circleSize, circleSize, Color.PURPLE);
+        Circle startWithBodyPart1 = new Circle(circleSize, circleSize, circleSize, Color.PURPLE);
+        Circle startWithBodyPart2 = new Circle(circleSize, circleSize, circleSize, Color.PURPLE);
         snake.addAll(head, startWithBodyPart1, startWithBodyPart2);
         points = 0;
         player.stop();
@@ -321,22 +333,22 @@ public class Main extends Application {
                 case W:
                 case UP:
                     if (direction != Direction.DOWN && newGame)
-                            direction = Direction.UP;
+                        direction = Direction.UP;
                     break;
                 case S:
                 case DOWN:
                     if (direction != Direction.UP && newGame)
-                            direction = Direction.DOWN;
+                        direction = Direction.DOWN;
                     break;
                 case A:
                 case LEFT:
                     if (direction != Direction.RIGHT && newGame)
-                            direction = Direction.LEFT;
+                        direction = Direction.LEFT;
                     break;
                 case D:
                 case RIGHT:
                     if (direction != Direction.LEFT && newGame)
-                            direction = Direction.RIGHT;
+                        direction = Direction.RIGHT;
                     break;
                 case P:
                     if ((!gameOver || !paused) && newGame)
@@ -347,6 +359,7 @@ public class Main extends Application {
                 case BACK_SPACE:
                     if ((!newGame && !paused) || (gameOver))
                         primaryStage.setScene(settings);
+                    break;
                 case ENTER:
                     if ((!newGame && !paused) || (gameOver)) {
                         snake.clear();
