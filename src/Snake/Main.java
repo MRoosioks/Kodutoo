@@ -25,7 +25,6 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-
 public class Main extends Application {
 
     Stage primaryStage;
@@ -44,15 +43,14 @@ public class Main extends Application {
 
     private boolean gameOver, newGame, paused, gameMode, music;
 
-    public double difficulty;
-
     private Timeline timeline = new Timeline();
 
     private ObservableList<Node> snake;
 
     Media gameEnd = new Media("file:///C:/Users/Madis/workspace/Kodutoo/src/GAME_OVER.mp3/");
-    MediaPlayer player = new MediaPlayer(gameEnd);
-//    https://www.youtube.com/watch?v=pQH9qaayEOs&index=12&list=PLE70F1F368DB2A6F2
+    MediaPlayer player1 = new MediaPlayer(gameEnd);
+    Media backgroundMusic = new Media("file:///C:/Users/Madis/workspace/Kodutoo/src/Background_music.mp3/");
+    MediaPlayer player2 = new MediaPlayer(backgroundMusic);
 
     private Parent firstScene() {
 
@@ -78,7 +76,6 @@ public class Main extends Application {
     private Parent secondScene() {
 
         // loon kõik layoutid
-        VBox settingsDifficulty = new VBox(10);
         VBox settingsGameMode = new VBox(10);
         VBox settingsSound = new VBox(10);
         StackPane playGame = new StackPane();
@@ -94,31 +91,20 @@ public class Main extends Application {
         play.getStyleClass().add("enterGame");
 
         // loon labelid  ja radiobuttonid ning annan neile nimed
-        Label chooseDifficulty = new Label("Mängu raskusaste");
-        RadioButton easy = new RadioButton("Kerge");
-        RadioButton medium = new RadioButton("Keskmine");
-        RadioButton hard = new RadioButton("Raske");
         Label chooseGamemode = new Label("Mängustiil");
         RadioButton withWalls = new RadioButton("Seintega mäng");
         RadioButton withoutWalls = new RadioButton("Seinteta mäng ");
         Label sound = new Label("Heli");
-        RadioButton on = new RadioButton("On");
-        RadioButton off = new RadioButton("Off");
+        RadioButton on = new RadioButton("Sees");
+        RadioButton off = new RadioButton("Väljas");
 
         // annan muutujale difficulty väärtuse olenevalt sellele, mis nuppu vajutatakse
-        easy.setOnAction(e -> difficulty = 0.1);
-        medium.setOnAction(e -> difficulty = 0.3);
-        hard.setOnAction(e -> difficulty = 0.05);
         withWalls.setOnAction(e -> gameMode = true);
         withoutWalls.setOnAction(e -> gameMode = false);
         on.setOnAction(e -> music = true);
         off.setOnAction(e -> music = false);
 
         // jaotan radiobuttonid gruppidesse
-        ToggleGroup difficulty = new ToggleGroup();
-        easy.setToggleGroup(difficulty);
-        medium.setToggleGroup(difficulty);
-        hard.setToggleGroup(difficulty);
         ToggleGroup gameMode = new ToggleGroup();
         withWalls.setToggleGroup(gameMode);
         withoutWalls.setToggleGroup(gameMode);
@@ -127,30 +113,25 @@ public class Main extends Application {
         off.setToggleGroup(gameSound);
 
         //sean 2 radiobuttonit kohe valituks
-        easy.setSelected(true);
         withoutWalls.setSelected(true);
         off.setSelected(true);
 
         // sean asukohad
         secondSceneLayout.setPrefSize(programWidth, programHeight);
-
-        secondSceneLayout.setLeft(settingsDifficulty);
+        secondSceneLayout.setLeft(settingsSound);
         secondSceneLayout.setRight(settingsGameMode);
         secondSceneLayout.setBottom(playGame);
         secondSceneLayout.setTop(settingsTitle);
-        secondSceneLayout.setCenter(settingsSound);
 
-        // sean kauguse seinast
-        BorderPane.setMargin(settingsDifficulty, new Insets(50, 20, 50, 50));
-        BorderPane.setMargin(settingsGameMode, new Insets(50, 50, 50, 20));
+        // sean asukohad layoutidel
+        BorderPane.setMargin(settingsSound, new Insets(50, 50, 50, 100));
+        BorderPane.setMargin(settingsGameMode, new Insets(50, 100, 50, 50));
         BorderPane.setMargin(playGame, new Insets(50, 0, 50, 0));
         BorderPane.setMargin(settingsTitle, new Insets(50, 0, 50, 0));
-        BorderPane.setMargin(settingsSound, new Insets(50, 50, 50, 50));
 
         // lisan kõik kokku
         playGame.getChildren().add(play);
         settingsTitle.getChildren().add(title);
-        settingsDifficulty.getChildren().addAll(chooseDifficulty, easy, medium, hard);
         settingsGameMode.getChildren().addAll(chooseGamemode, withoutWalls, withWalls);
         settingsSound.getChildren().addAll(sound, off, on);
 
@@ -160,7 +141,7 @@ public class Main extends Application {
 
     private Parent game() {
 
-        player.setVolume(0.3);
+        player1.setVolume(0.5);
 
         Pane root = new Pane();
         root.setPrefSize(programWidth, programHeight);
@@ -183,8 +164,6 @@ public class Main extends Application {
         Circle food = new Circle(circleSize, circleSize, circleSize / 1.5, Color.DARKGREEN);
         food.setTranslateX((int) (Math.random() * (programWidth - blockSize)) / blockSize * blockSize);
         food.setTranslateY((int) (Math.random() * (programHeight - blockSize)) / blockSize * blockSize);
-
-
 
         KeyFrame frame = new KeyFrame(Duration.seconds(0.1), event -> {
 
@@ -224,8 +203,8 @@ public class Main extends Application {
                 if (circle != tail && tail.getTranslateX() == circle.getTranslateX()
                         && tail.getTranslateY() == circle.getTranslateY()) {
                     controls.setVisible(true);
-                    if(music)
-                        player.play();
+                    if (music)
+                        player1.play();
                     stopGame();
                     break;
                 }
@@ -249,8 +228,8 @@ public class Main extends Application {
             if (tail.getTranslateX() < 0 || tail.getTranslateX() >= programWidth
                     || tail.getTranslateY() < 0 || tail.getTranslateY() >= programHeight) {
                 controls.setVisible(true);
-                if(music)
-                    player.play();
+                if (music)
+                    player1.play();
                 stopGame();
             }
 
@@ -282,6 +261,7 @@ public class Main extends Application {
     }
 
     private void stopGame() {
+        player2.stop();
         timeline.stop();
         newGame = false;
         gameOver = true;
@@ -292,17 +272,21 @@ public class Main extends Application {
         Circle head = new Circle(circleSize, circleSize, circleSize, Color.PURPLE);
         Circle startWithBodyPart1 = new Circle(circleSize, circleSize, circleSize, Color.PURPLE);
         Circle startWithBodyPart2 = new Circle(circleSize, circleSize, circleSize, Color.PURPLE);
-        snake.addAll(head, startWithBodyPart1, startWithBodyPart2);
+        Circle startWithBodyPart3 = new Circle(circleSize, circleSize, circleSize, Color.PURPLE);
+        snake.addAll(head, startWithBodyPart1, startWithBodyPart2, startWithBodyPart3);
         points = 0;
-        player.stop();
+        player1.stop();
         direction = Direction.RIGHT;
         timeline.play();
         newGame = true;
         gameOver = false;
         paused = false;
+        if (music)
+            player2.play();
     }
 
     private void pauseGame() {
+        player2.pause();
         timeline.pause();
         newGame = false;
         gameOver = false;
@@ -310,6 +294,8 @@ public class Main extends Application {
     }
 
     private void resumeGame() {
+        player2.play();
+
         timeline.play();
         newGame = true;
         gameOver = false;

@@ -9,12 +9,12 @@
     -fx-background-radius: 20;
 }
 .exitButton:hover{
-    -fx-background-color: linear-gradient(#00a3e6, #66b0b1);
+    -fx-background-color: linear-gradient(#00a3e6, #e60f0d);
     -fx-text-fill: white;
 }
 .title{
     -fx-font-weight: bold, italic;
-    -fx-font-size: 30;
+    -fx-font-size: 26;
     -fx-font-family: "Arial";
     -fx-fill: #71d3e6;
 }
@@ -32,11 +32,5 @@
 .radio-button .dot{
     -fx-mark-color: green ;
 }
-.border-style{
-    -fx-border-width: medium;
-    -fx-border-color: red;
-}
-.padding{
-    -fx-padding: 50 50 50 50;
-}
+
 
