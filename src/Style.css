@@ -14,9 +14,9 @@
 }
 .title{
     -fx-font-weight: bold, italic;
-    -fx-font-size: 26;
+    -fx-font-size: 30;
     -fx-font-family: "Arial";
-    -fx-fill: #71d3e6;
+    -fx-fill:  linear-gradient(#ff080b, #2518ff);
 }
 .enterGame{
     -fx-font-size: 18;
@@ -32,5 +32,4 @@
 .radio-button .dot{
     -fx-mark-color: green ;
 }
-
 
