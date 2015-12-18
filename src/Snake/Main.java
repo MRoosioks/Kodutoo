@@ -57,7 +57,7 @@ public class Main extends Application {
     MediaPlayer playerBackgroundMusic = new MediaPlayer(backgroundMusic);
 
     /**
-     * Creates layout which consists of VBox. This layout is for welcoming the user of
+     * Creates layout which consists of VBox. This layout is for welcoming the user of in
      * this program.
      * @return returns the layout is defined in the method.
      */
@@ -190,19 +190,25 @@ public class Main extends Application {
         food.setTranslateX((int) (Math.random() * (programWidth - blockSize)) / blockSize * blockSize);
         food.setTranslateY((int) (Math.random() * (programHeight - blockSize)) / blockSize * blockSize);
 
-        /**  */
+        /** Starts keyframe, timeline starts*/
         KeyFrame frame = new KeyFrame(Duration.seconds(0.08), event -> {
 
             controls.setVisible(false);
 
+            /** Identefies if there are at least two blocks in a snake body. */
             boolean toRemove = snake.size() > 1;
 
+            /**
+             * If there are more than two block then removes tail and if not then
+             * it gets the only block (head) in a snake body.
+             */
             Node tail = toRemove ? snake.remove(snake.size() - 1) : snake.get(0);
 
+            /** Remembers old tail coordinates. */
             double rememberTailX = tail.getTranslateX();
             double rememberTailY = tail.getTranslateY();
 
-            /** switch statment sets how the snake moves. */
+            /** switch statement sets how the snake moves. */
             switch (direction) {
                 case UP:
                     tail.setTranslateX(snake.get(0).getTranslateX());
@@ -223,6 +229,7 @@ public class Main extends Application {
 
             }
 
+            /** Puts removed block back to the front.*/
             if (toRemove)
                 snake.add(0, tail);
 
@@ -273,7 +280,6 @@ public class Main extends Application {
                 food.setTranslateY((int) (Math.random() * (programHeight - blockSize)) / blockSize * blockSize);
                 this.points += 15;
                 points.setText("Punktid: " + this.points);
-
                 Circle addBodyPart1 = new Circle(circleSize, circleSize, circleSize, Color.PURPLE);
                 Circle addBodyPart2 = new Circle(circleSize, circleSize, circleSize, Color.PURPLE);
                 Circle addBodyPart3 = new Circle(circleSize, circleSize, circleSize, Color.PURPLE);

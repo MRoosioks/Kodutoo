@@ -17,14 +17,13 @@ public class Confirmation {
     static boolean answer;
 
     /**
-     * This class creates popup window which has two buttons
+     * This class made for creating popup window which has two buttons
      * @param title Title of the popup window which will be displayed to the user
      * @param message Message what will be displayed to the user.
      * @return returns the boolean answer either true or false.
      */
     public static boolean display(String title, String message) {
         Stage primaryStage = new Stage();
-        primaryStage.initModality(Modality.APPLICATION_MODAL);
         primaryStage.setTitle(title);
         primaryStage.setMinWidth(400);
         primaryStage.setMinHeight(175);
