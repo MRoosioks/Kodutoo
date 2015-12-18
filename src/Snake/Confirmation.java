@@ -1,4 +1,4 @@
-package Snake;
+package snake;
 
 import javafx.stage.*;
 import javafx.scene.*;
